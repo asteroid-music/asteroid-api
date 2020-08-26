@@ -6,4 +6,4 @@ from asteroid_flask.songs import Songs
 bp_api = Blueprint('api', __name__)
 api = Api(bp_api)
 
-api.add_resource(Songs, '/')
+api.add_resource(Songs, '/songs')
