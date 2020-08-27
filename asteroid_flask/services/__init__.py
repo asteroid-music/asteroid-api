@@ -1,0 +1,1 @@
+from asteroid_flask.services.database import init_app_database
