@@ -19,7 +19,7 @@ def _connect_to_database():
 def db_setup():
     """ create tables in database """
     conn = _connect_to_database()
-    for table in ["songs", "users"]:
+    for table in ["music", "clients", "queue", "history"]:
         try:
             r.table_create(table).run(conn)
         except RqlRuntimeError:
