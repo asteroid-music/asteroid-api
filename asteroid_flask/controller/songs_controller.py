@@ -1,10 +1,9 @@
 from flask_restful import Resource, marshal_with, reqparse, marshal
-from flask import g
 
-from rethinkdb import r
+from asteroid_flask.models import Music
 
 from asteroid_flask.controller import song_marshal
-from asteroid_flask.services import Requester
+from asteroid_flask.services.requester import Requester
 
 new_song_parser = reqparse.RequestParser()
 new_song_parser.add_argument('url')
@@ -16,9 +15,7 @@ class SongsList(Resource):
     @marshal_with(song_marshal)
     def get(self):
         """ returns all items in songs database """
-        return list(
-                r.table('music').run(g.get_conn())
-            ), 200
+        return list(Music.objects()), 200
 
 
     def post(self):
@@ -52,12 +49,7 @@ class Songs(Resource):
     @marshal_with(song_marshal)
     def get(self, name):
         """ returns items in songs database that match song name """
-        return list(
-                r.table('music')
-                    .filter(lambda doc:
-                        doc['song'].match(name)
-                    ).run(g.get_conn())
-            ), 200
+        return list(Music.objects(song__match=name)), 200
 
 
 class Artists(Resource):
@@ -66,12 +58,7 @@ class Artists(Resource):
     @marshal_with(song_marshal)
     def get(self, name):
         """ returns items in songs database that match song name """
-        return list(
-                r.table('music')
-                    .filter(lambda doc:
-                        doc['artist'].match(name)
-                    ).run(g.get_conn())
-            ), 200
+        return list(Music.object(artist__match=name)), 200
 
 
 class Albums(Resource):
@@ -80,9 +67,4 @@ class Albums(Resource):
     @marshal_with(song_marshal)
     def get(self, name):
         """ returns items in songs database that match song name """
-        return list(
-                r.table('music')
-                    .filter(lambda doc:
-                        doc['album'].match(name)
-                    ).run(g.get_conn())
-            ), 200
+        return list(Music.objects(album__match=name)), 200

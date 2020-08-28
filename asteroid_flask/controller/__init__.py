@@ -7,3 +7,8 @@ song_marshal = {
     'album': fields.String,
     'id': fields.String
 }
+
+queue_marshal = {
+    **song_marshal,
+    'votes': fields.Integer
+}

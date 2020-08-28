@@ -1,24 +1,21 @@
 from flask_restful import Resource, marshal_with, fields, reqparse
-from flask import g
 
-from rethinkdb import r
+from asteroid_flask.models import Queue, Music
 
-from asteroid_flask.controller import song_marshal
+from asteroid_flask.controller import queue_marshal
 
 
 new_queue_item_parser = reqparse.RequestParser()
-new_queue_item_parser.add_argument('id', action='append')
+new_queue_item_parser.add_argument('id')
 
 
 class QueueList(Resource):
     """ REST Resource for Song Queue control """ 
 
-    @marshal_with(song_marshal)
+    @marshal_with(queue_marshal)
     def get(self):
         """ returns all items in songs database """
-        return list(
-                r.table('queue').run(g.get_conn())
-            ), 200
+        return list(Queue.objects()), 200
 
 
     def post(self):
@@ -38,27 +35,31 @@ class QueueList(Resource):
 
     def _add_song_to_queue(self, _id):
         """ fetches songs from music database and adds to song queue """
-        if type(_id) is list:
-            query = r.table('music').get_all(_id)
-        else:
-            query = r.table('music').get(_id)
-
-        song = query.run(g.get_conn())
+        song = Music.objects(id=_id).first()
 
         if song is None:
             return { 'message' : 'Failed to find song.' }, 400
 
         else:
-            r.table('queue').insert(
-                song,
-                conflict=self._resolve_conflict
-            ).run(g.get_conn())
+            # there must be a nice way to do this no?
+            new_item = Queue(
+                song = song.song,
+                duration = song.duration,
+                artist = song.artist, 
+                album = song.album,
+                file = song.file,
+                url = song.url,
+                votes = 1
+            )
 
-            return { 'message' : 'Song added to queue.' }, 200
+            # if already in queue
+            existing = Queue.objects(file=new_item.file).first()
+            if existing:
+                # update
+                existing.votes += 1
+                existing.save()
+            else:
+                # add new
+                new_item.save()
 
-    @staticmethod 
-    def _resolve_conflict(_id, old, new):
-        """ if song already in queue, increment votes by 1 """
-        new["votes"] = 1 + old["votes"]
-        return { **new, 'id': _id }
-
+            return { 'message' : 'Song updated/added to queue.' }, 200

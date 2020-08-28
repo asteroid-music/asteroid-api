@@ -1,6 +1,4 @@
-from flask import g
-from rethinkdb import r
-
+from asteroid_flask.models import Music
 from asteroid_flask.services.request_services.yt_dl import RequestYT
 
 class Requester():
@@ -12,10 +10,10 @@ class Requester():
     def _is_duplicate(self):
         """ checks if the song already exists in the database
             naively does this by seeing if url is duplicate """
-        res = r.table('music').filter(lambda doc:
-            doc['url'] == self.url
-        ).run(g.get_conn())
-        if len(list(res)) > 1:
+        res = list(Music.objects(url=self.url))
+        print(res)
+
+        if len(res) > 0:
             return True
         else:
             return False
@@ -38,10 +36,9 @@ class Requester():
     def _add_to_database(self):
         """ adds the song to the song database and extends the
             song dictionary with the returned id """
-        info = r.table('music').insert(
-            self.song
-        ).run(g.get_conn())
-        self.song['id'] = info['generated_keys'][0]
+        info = Music(**self.song)
+        info.save()
+        self.song['id'] = Music.objects(url=self.url).first().id
 
 
 # check FFMPEG is native

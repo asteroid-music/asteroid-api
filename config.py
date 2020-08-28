@@ -1,7 +1,10 @@
 class Config(object):
     CORS_HEADERS = 'Content-Type'
-    RDB_HOST = 'localhost'
-    RDB_PORT = '28015'
+    MONGO_SETTINGS = {
+        'db': 'asteroid',
+        'host': 'localhost',
+        'port': '27017'
+    }
     MUSIC_DIR = 'musicfiles'
 
 class Development(Config):
