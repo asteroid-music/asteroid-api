@@ -1,1 +1,2 @@
 from asteroid_flask.services.database import init_app_database
+from asteroid_flask.services.requester import Requester

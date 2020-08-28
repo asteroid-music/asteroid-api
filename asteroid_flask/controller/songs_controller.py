@@ -1,9 +1,10 @@
-from flask_restful import Resource, marshal_with, reqparse
+from flask_restful import Resource, marshal_with, reqparse, marshal
 from flask import g
 
 from rethinkdb import r
 
 from asteroid_flask.controller import song_marshal
+from asteroid_flask.services import Requester
 
 new_song_parser = reqparse.RequestParser()
 new_song_parser.add_argument('url')
@@ -29,8 +30,20 @@ class SongsList(Resource):
                 raise
         except:
             return { 'message' : 'Bad URL data.' }, 400
-
-        return {'message': url}, 200
+        else:
+            req = Requester(url)
+            status = req.fetch()
+            if status == 'done':
+                song = req.song
+                return {
+                    'message': 'URL OK.', 
+                    'song': marshal(song, song_marshal)
+                }, 200
+            else:
+                return {
+                    'message': 'Download / Converstion Error',
+                    'status': status,
+                }, 400
 
 
 class Songs(Resource):
