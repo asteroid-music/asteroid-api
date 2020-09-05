@@ -1,9 +1,11 @@
 class Config(object):
     CORS_HEADERS = 'Content-Type'
     MONGO_SETTINGS = {
-        'db': 'asteroid',
+        'db': 'test',
         'host': 'localhost',
-        'port': '27017'
+        'port': '27017',
+        'alias': 'default',
+        'timeout': True
     }
     MUSIC_DIR = 'musicfiles'
 
