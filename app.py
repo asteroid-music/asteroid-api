@@ -1,6 +1,5 @@
 from flask import Flask, redirect
 from flask_restful import Api
-from flask_cors import CORS
 import flask.cli
 
 from asteroid_flask.services import init_database
@@ -12,10 +11,15 @@ app = Flask(
     static_folder='web'
 )
 
-# enable CORS for all domains on all routes
-CORS(app)
-app.config.from_object('config.Development')
+
+if app.debug:
+    app.config.from_object('config.Development')
+else:
+    app.config.from_object('config.Production')
+
 app.register_blueprint(bp_api)
+
+
 
 # make root redirect
 @app.route('/')

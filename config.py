@@ -2,7 +2,7 @@ class Config(object):
     CORS_HEADERS = 'Content-Type'
     MONGO_SETTINGS = {
         'db': 'test',
-        'host': 'localhost',
+        'host': '127.0.0.1',
         'port': '27017',
         'alias': 'default',
         'timeout': True
@@ -18,4 +18,4 @@ class Testing(Config):
     TESTING = True
 
 class Production(Config):
-    pass
+    FLASK_ENV = 'production'
