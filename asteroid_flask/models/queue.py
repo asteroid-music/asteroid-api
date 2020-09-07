@@ -1,10 +1,17 @@
 from asteroid_flask.services.database import db
 
-class Queue(db.Document):
-    song = db.StringField()
-    duration = db.IntField()
-    artist = db.StringField()
-    album = db.StringField()
-    file = db.StringField(unique=True)
-    url = db.StringField(unique=True)
-    votes = db.IntField()
+class Queue(db.Model):
+    id = db.Column(
+        db.Integer, 
+        primary_key=True
+    )
+    song_id = db.Column(
+        db.Integer,
+        db.ForeignKey("music.id"),
+        unique=True    
+    )
+    votes = db.Column(
+        db.Integer,
+        nullable=False
+    )
+

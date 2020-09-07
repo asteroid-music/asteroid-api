@@ -75,7 +75,11 @@ class RequestYT():
     def download(self, url):
         try:
             with youtube_dl.YoutubeDL(self.ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True, process=True)
+                info = ydl.extract_info(
+                    url, 
+                    download=True, 
+                    process=True
+                )
         except youtube_dl.utils.ExtractorError as e:
             self.status = "extractError"
             return {}

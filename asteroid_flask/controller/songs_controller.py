@@ -15,7 +15,7 @@ class SongsList(Resource):
     @marshal_with(song_marshal)
     def get(self):
         """ returns all items in songs database """
-        return list(Music.objects()), 200
+        return list(Music.query.all()), 200
 
 
     def post(self):
@@ -47,24 +47,30 @@ class Songs(Resource):
     """ REST Resource for Songs by song name """ 
 
     @marshal_with(song_marshal)
-    def get(self, name):
+    def get(self, song):
         """ returns items in songs database that match song name """
-        return list(Music.objects(song__match=name)), 200
+        return list(Music.query.filter(
+            Music.song.like(f"%{song}%")
+        ).all()), 200
 
 
 class Artists(Resource):
     """ REST Resource for Songs by artist name """ 
 
     @marshal_with(song_marshal)
-    def get(self, name):
+    def get(self, artist):
         """ returns items in songs database that match song name """
-        return list(Music.object(artist__match=name)), 200
+        return list(Music.query.filter(
+            Music.artist.like(f"%{artist}%")
+        ).all()), 200
 
 
 class Albums(Resource):
     """ REST Resource for Songs by album name """ 
 
     @marshal_with(song_marshal)
-    def get(self, name):
+    def get(self, album):
         """ returns items in songs database that match song name """
-        return list(Music.objects(album__match=name)), 200
+        return list(Music.query.filter(
+            Music.album.like(f"%{album}%")
+        ).all()), 200

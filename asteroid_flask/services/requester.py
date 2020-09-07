@@ -1,5 +1,6 @@
 from asteroid_flask.models import Music
 from asteroid_flask.services.request_services.yt_dl import RequestYT
+from asteroid_flask.services.database import db
 
 class Requester():
 
@@ -10,10 +11,10 @@ class Requester():
     def _is_duplicate(self):
         """ checks if the song already exists in the database
             naively does this by seeing if url is duplicate """
-        res = list(Music.objects(url=self.url))
+        res = Music.query.filter_by(url=self.url).first()
         print(res)
 
-        if len(res) > 0:
+        if res is not None:
             return True
         else:
             return False
@@ -37,8 +38,13 @@ class Requester():
         """ adds the song to the song database and extends the
             song dictionary with the returned id """
         info = Music(**self.song)
-        info.save()
-        self.song['id'] = Music.objects(url=self.url).first().id
+        db.session.add(info)
+        db.session.commit()
+
+        # query to get ID
+        self.song['id'] = Music.query.filter_by(
+            url=self.url
+        ).order_by(Music.id.desc()).first().id
 
 
 # check FFMPEG is native

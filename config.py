@@ -1,12 +1,7 @@
 class Config(object):
-    CORS_HEADERS = 'Content-Type'
-    MONGO_SETTINGS = {
-        'db': 'test',
-        'host': '127.0.0.1',
-        'port': '27017',
-        'alias': 'default',
-        'timeout': True
-    }
+    #CORS_HEADERS = 'Content-Type'
+    SQLALCHEMY_DATABASE_URI="sqlite:///./test.db"
+    SQLALCHEMY_TRACK_MODIFICATIONS=False
     MUSIC_DIR = 'musicfiles'
 
 class Development(Config):

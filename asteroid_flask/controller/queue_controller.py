@@ -1,6 +1,7 @@
 from flask_restful import Resource, marshal_with, fields, reqparse
 
 from asteroid_flask.models import Queue, Music
+from asteroid_flask.services.database import db
 
 from asteroid_flask.controller import queue_marshal
 
@@ -15,7 +16,16 @@ class QueueList(Resource):
     @marshal_with(queue_marshal)
     def get(self):
         """ returns all items in songs database """
-        return list(Queue.objects()), 200
+        res =  db.session.query(
+            Queue, Music
+        ).join(Music).all()
+
+        res = list(map(
+            lambda i: {**i[1].__dict__, **i[0].__dict__}, 
+            res
+        ))
+
+        return res, 200
 
 
     def post(self):
@@ -35,31 +45,25 @@ class QueueList(Resource):
 
     def _add_song_to_queue(self, _id):
         """ fetches songs from music database and adds to song queue """
-        song = Music.objects(id=_id).first()
+        song = Music.query.filter_by(id=_id).first()
 
         if song is None:
             return { 'message' : 'Failed to find song.' }, 400
 
         else:
-            # there must be a nice way to do this no?
             new_item = Queue(
-                song = song.song,
-                duration = song.duration,
-                artist = song.artist, 
-                album = song.album,
-                file = song.file,
-                url = song.url,
+                song_id = song.id,
                 votes = 1
             )
 
             # if already in queue
-            existing = Queue.objects(file=new_item.file).first()
+            existing = Queue.query.filter_by(id=_id).first()
             if existing:
                 # update
                 existing.votes += 1
-                existing.save()
             else:
                 # add new
-                new_item.save()
+                db.session.add(new_item)
 
+            db.session.commit()
             return { 'message' : 'Song updated/added to queue.' }, 200
