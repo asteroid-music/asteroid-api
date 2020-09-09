@@ -8,6 +8,7 @@ from asteroid_flask.controller import queue_marshal
 
 new_queue_item_parser = reqparse.RequestParser()
 new_queue_item_parser.add_argument('id')
+new_queue_item_parser.add_argument('vote', type=int)
 
 
 class QueueList(Resource):
@@ -32,18 +33,22 @@ class QueueList(Resource):
         """ endpoint for adding new song from url in request data """
 
         try:
-            _id = new_queue_item_parser.parse_args(strict=True).id
-            if _id is None:
+            # unpack arguments
+            args = new_queue_item_parser.parse_args(strict=True)
+            _id = args.id
+            vote = args.vote
+
+            if _id is None or vote is None:
                 raise
         except:
             return { 'message' : 'Bad body/JSON data.'}, 400
 
         else:
-            response, code = self._add_song_to_queue(_id)
+            response, code = self._add_song_to_queue(_id, vote)
             return response, code
 
 
-    def _add_song_to_queue(self, _id):
+    def _add_song_to_queue(self, _id, vote):
         """ fetches songs from music database and adds to song queue """
         song = Music.query.filter_by(id=_id).first()
 
@@ -53,14 +58,14 @@ class QueueList(Resource):
         else:
             new_item = Queue(
                 song_id = song.id,
-                votes = 1
+                votes = vote
             )
 
             # if already in queue
             existing = Queue.query.filter_by(id=_id).first()
             if existing:
                 # update
-                existing.votes += 1
+                existing.votes += vote
             else:
                 # add new
                 db.session.add(new_item)
