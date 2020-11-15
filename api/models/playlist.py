@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from api.models.songs import SongsModel, SongsOut
 from api.models.objectid import ObjectId
 
+
 class PlaylistItem(BaseModel):
     song: SongsModel
     votes: int

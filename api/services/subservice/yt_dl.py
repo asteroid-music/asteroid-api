@@ -30,13 +30,17 @@ ydl_opts = {
 
 
 class RequestYT:
+    music_directory = os.environ.get("MUSIC_PATH", ".")
+
     def __init__(self):
         self.ydl_opts = {
             **ydl_opts,
             "logger": logger,
             "progress_hooks": [self._proxy_hook],
             # todo: configurable storage location
-            "outtmpl": "%(title)s.%(ext)s",
+            "outtmpl": os.path.join(
+                RequestYT.music_directory, "%(title)s.%(ext)s"
+            ),
         }
 
         self.title = ""

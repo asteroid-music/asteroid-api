@@ -45,5 +45,7 @@ async def unravell_cursor(cursor: motor.motor_asyncio.AsyncIOMotorCursor):
 pymongo.monitoring.register(_MongoLogger())
 
 # todo: easy configuration
-client = motor.motor_asyncio.AsyncIOMotorClient("localhost", 27017)
+client = motor.motor_asyncio.AsyncIOMotorClient(
+    os.environ.get("MONGO_SRV", "mongodb://localhost:27017")
+)
 database = client.dev
