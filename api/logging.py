@@ -26,29 +26,26 @@ def _rotating_handler():
     return file_handler
 
 
-def _get_cli_logger(file_handler):
+def _get_cli_logger():
     # get handler from uvicorn
     uvicorn_logger = logging.getLogger("uvicorn")
     handler = uvicorn_logger.handlers[0]
 
     logger = logging.getLogger(__api_name__)
     logger.handlers = [handler]
-    logger.addHandler(file_handler)
 
     logger.setLevel(uvicorn_logger.level)
 
     return logger
 
-
 def _configure_fastapi(handlers):
     fastapi_logger.handlers = handlers
-
 
 # root logging
 rfhandler = _rotating_handler()
 
 # get asteroid logger
-logger = _get_cli_logger(rfhandler)
+logger = _get_cli_logger()
 
 # configure fastapi
 _configure_fastapi(logger.handlers)
