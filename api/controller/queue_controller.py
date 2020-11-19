@@ -23,13 +23,13 @@ async def fetch_song(song_id: ObjectId):
     return await songs_collection.find_one(song_id)
 
 
-async def update_vote(song_id: ObjectId):
+async def update_vote(song_id: ObjectId, vote:int):
     # EAFP
     return_value = 0
     try:
         return_value = await collection.update_one(
             {"name": "queue", "songs.song._id": song_id},
-            {"$inc": {"songs.$.votes": 1}},
+            {"$inc": {"songs.$.votes": vote}},
         )
 
     except pymongo.errors.WriteError as e:
@@ -50,7 +50,7 @@ async def get_queue():
 
 
 @queue_router.post("/", status_code=201, responses={400: {"message": "bad songid"}})
-async def vote_for_song(song_id: str):
+async def vote_for_song(song_id: str, vote: int):
     song_id = ObjectId(song_id)
 
     # check song is valid
@@ -60,13 +60,13 @@ async def vote_for_song(song_id: str):
         return JSONResponse(status_code=400, content={"message": "bad songid"})
 
     # check if in queue, and if it is, update the vote
-    if await update_vote(song_id):
+    if await update_vote(song_id, vote):
         # done
         logger.info("Vote updated")
     else:
         # add song to queue
         await collection.update_one(
-            {"name": "queue"}, {"$push": {"songs": {"song": song, "votes": 1}}}
+            {"name": "queue"}, {"$push": {"songs": {"song": song, "votes": vote}}}
         )
         logger.info("New song added to queue")
 
